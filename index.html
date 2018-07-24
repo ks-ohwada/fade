@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+  <link rel="stylesheet" href="./fade.css">
+  <meta charset="utf-8">
+  <title>Kingsley</title>
+</head>
+
+<body>
+  <div class="fade-image">
+    <div class="images">
+      <img src="./1.jpg">
+    </div>
+    <div class="images">
+      <img src="./2.jpg">
+    </div>
+    <div class="images">
+      <img src="./3.jpg">
+    </div>
+    <div class="images">
+      <img src="./4.jpg">
+    </div>
+    <div class="images">
+      <img src="./5.jpg">
+    </div>
+
+    <div id="slider-dot"></div>
+  </div>
+
+  <div class="select">
+    <p id="prev">＜</p>
+    <p id="next">＞</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.2.0/anime.min.js"></script>
+  <script>
+    class Carousel {
+      constructor() {
+        // エレメント取得
+        this.imagesEl = document.querySelectorAll('.images');
+        this.nextEl = document.getElementById('next');
+        this.prevEl = document.getElementById('prev');
+
+        // 変数定義
+        this.index = 0;
+        this.index2 = 0;
+        this.opacity = 0;
+
+        this.timer = null;
+        this.dotImage = null;
+
+        this.createDots();
+        this.bind();
+        this.start();
+      }
+
+      // イベント追加
+      bind() {
+        this.nextEl.addEventListener('click', () => {
+          this.clearTimer();
+          this.nextSlide();
+        });
+
+        this.prevEl.addEventListener('click', () => {
+          this.clearTimer();
+          this.prevSlide();
+        });
+
+        [].forEach.call(this.dotImage, dot => {
+          dot.addEventListener('click', (e) => {
+            this.clearTimer();
+
+            this.move();
+
+            this.index = Number(e.currentTarget.dataset.value);
+
+            this.updateIndicator();
+            this.slideImage();
+          });
+        });
+      }
+
+      // 画像切り替えアニメーション処理
+      slideImage() {
+
+        anime({
+          targets: this.imagesEl[this.index2],
+          opacity: 0,
+          easing: 'easeOutCubic',
+        });
+
+        anime({
+          targets: this.imagesEl[this.index],
+          opacity: 1,
+          easing: 'easeOutCubic',
+          complete: () => {
+            this.clearTimer();
+            this.start();
+          }
+        });
+      }
+      // ドット色付け
+      updateIndicator() {
+        this.resetClass();
+        this.dotImage[this.index].classList.add("li-gray");
+      };
+
+      // 次へ
+      nextSlide() {
+        this.move();
+
+        this.index = (this.index < this.imagesEl.length - 1)
+          ? this.index + 1
+          : 0;
+
+        this.updateIndicator();
+        this.slideImage();
+      }
+      // 前へ
+      prevSlide() {
+        this.move();
+
+        this.index = (this.index <= 0)
+          ? this.imagesEl.length - 1
+          : this.index - 1;
+
+        this.updateIndicator();
+        this.slideImage();
+      }
+
+      // ドット追加処理
+      createDots() {
+        this.imagesEl.forEach((currentValue, index) => {
+          const li = document.createElement('li');
+          li.dataset.value = index;
+          li.innerHTML = "●";
+          li.className = "dot-button";
+          document.getElementById('slider-dot').appendChild(li);
+        });
+
+        this.dotImage = document.querySelectorAll('.dot-button');
+        this.dotImage[0].classList.add("li-gray");
+        this.imagesEl[this.index].style.opacity = 1;
+      }
+
+      // クラス名初期化
+      resetClass() {
+        this.dotImage.forEach((dotImage) => {
+          dotImage.classList.remove("li-gray");
+        });
+      }
+
+      // インターバル初期化
+      clearTimer() {
+        clearInterval(this.timer);
+      }
+
+      // 開始
+      start() {
+        this.timer = setInterval(this.nextSlide.bind(this), 2000);
+      }
+
+      // 値引き渡し
+      move() {
+        this.index2 = this.index;
+      }
+    }
+
+    const carousel = new Carousel();
+
+  </script>
+
+  </script>
+</body>
+
+</html>
